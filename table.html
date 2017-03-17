@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head runat="server">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title></title>
+<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.8/jquery.min.js"></script>
+<script type="text/javascript">
+Array.prototype.filterRepeat = function () {
+var res = [], hash = {};
+for (var i = 0, elem; (elem = this[i]) != null; i++) {
+if (!hash[elem]) {
+res.push(elem);
+hash[elem] = true;
+}
+}
+return res;
+}
+$(function () {
+var json = [
+{ "SysName": "数据库", "SysGuid": "1", "CourseName": "SQL", "CourseGuid": "22", "Remarks": "大sb", "firstdate": "2013-1-1", "firstresult": "合格", "secdate": "2013-2-1", "secresult": "合格", "thirddate": "2013-3-1", "thirdresult": "合格" },
+{ "SysName": "数据库", "SysGuid": "1", "CourseName": "MySQL", "CourseGuid": "23", "Remarks": "IQ太低", "firstdate": "2013-1-1", "firstresult": "不合格", "secdate": "2013-2-1", "secresult": "不合格", "thirddate": "2013-3-1", "thirdresult": "合格" },
+{ "SysName": "数据库", "SysGuid": "1", "CourseName": "NoSQL", "CourseGuid": "24", "Remarks": "IQ太低", "firstdate": "2013-1-1", "firstresult": "不合格", "secdate": "2013-2-1", "secresult": "合格", "thirddate": "2013-3-1", "thirdresult": "合格" },
+{ "SysName": "数据库", "SysGuid": "1", "CourseName": "Oracle", "CourseGuid": "25", "Remarks": "IQ太低", "firstdate": "2013-1-1", "firstresult": "不合格", "secdate": "2013-2-1", "secresult": "合格", "thirddate": "2013-3-1", "thirdresult": "合格" },
+{ "SysName": "ASP.NET", "SysGuid": "2", "CourseName": "基础", "CourseGuid": "43", "Remarks": "IQ太低", "firstdate": "2013-1-1", "firstresult": "合格", "secdate": "2013-2-1", "secresult": "不合格", "thirddate": "2013-3-1", "thirdresult": "合格" },
+{ "SysName": "ASP.NET", "SysGuid": "2", "CourseName": "高级", "CourseGuid": "44", "Remarks": "IQ太低", "firstdate": "2013-1-1", "firstresult": "合格", "secdate": "2013-2-1", "secresult": "不合格", "thirddate": "2013-4-1", "thirdresult": "合格" },
+{ "SysName": "JavaScript", "SysGuid": "3", "CourseName": "基础", "CourseGuid": "54", "Remarks": "IQ太低", "firstdate": "2013-1-1", "firstresult": "合格", "secdate": "2013-2-1", "secresult": "合格", "thirddate": "2013-5-1", "thirdresult": "合格" },
+{ "SysName": "JavaScript", "SysGuid": "3", "CourseName": "高级", "CourseGuid": "67", "Remarks": "IQ太低", "firstdate": "2013-1-1", "firstresult": "不合格", "secdate": "2013-2-1", "secresult": "合格", "thirddate": "2013-6-1", "thirdresult": "合格" },
+];
+createTable(json);
+
+$("#btnsave").click(function () {
+$("#ta").text(setDataXML());
+});
+});
+function createTable(json) {
+var tb = $("#tb");
+var sys = new Array;
+for (var i = 0; i < json.length; i++) {
+sys.push(json[i].SysName);
+}
+//过滤重复
+sys = sys.filterRepeat();
+var tr = null;
+for (var j = 0 ; j < sys.length; j++) {
+tr += "<tr style='text-align: left' class=gridborder id=p" + j + "><td colspan=8>[-]" + sys[j] + "</td></tr>";
+for (var i = 0; i < json.length; i++) {
+if (json[i].SysName == sys[j]) {
+tr += "<tr parent=p" + j + " style='text-align: center' pguid='" + json[i].SysGuid + "' cguid='" + json[i].CourseGuid + "'><td>" + json[i].CourseName + "</td><td>" + setDate(json[i].firstdate) + "</td><td>" + setSelect(json[i].firstresult) + "</td><td>" + setDate(json[i].secdate) + "</td><td>" + setSelect(json[i].secresult) + "</td><td>" + setDate(json[i].thirddate) + "</td><td>" + setSelect(json[i].thirdresult) + "</td><td>" + setInput(json[i].Remarks) + "</td></tr>"
+}
+}
+}
+tb.append(tr);
+//设置行点击事件
+$("tr.gridborder").css("cursor", "pointer")
+.toggle(function () {
+var txt = $(this).children().text();
+$(this).children().text(txt.replace("-", "+"));
+}, function () {
+var txt = $(this).children().text();
+$(this).children().text(txt.replace("+", "-"));
+
+}).click(function () {
+var id = $(this).attr("id");
+$(this).siblings("tr[parent='" + id + "']").toggle();
+});
+//设置选中变色
+$("tr[parent^=p]").toggle(function () {
+$(this).attr('bgcolor', '#E3e4e5');
+}, function () {
+$(this).attr('bgcolor', '#ffffff');
+});
+}
+function setSelect(obj) {
+return "<select style='width:96%'><option value ='" + obj + "'>" + obj + "</option ><option value='合格'>合格</option><option value='不合格'>不合格</option></select>";
+}
+function setDate(obj) {
+return "<input style='width:96%' type='text' value='" + obj + "' />";
+}
+function setInput(obj) {
+return "<input style='width:96%' type='text' value='" + obj + "' />";
+}
+function setDataXML() {
+var dataxml = $("<DataXML></DataXML>");
+$("tr[parent^=p]").each(function () {
+var item = $("<Course/>");
+var sysguid = $(this).attr("pguid");
+var cguid = $(this).attr("cguid");
+var fdate = $(this).children().children().eq(0).val();
+var fresult = $(this).children().children().eq(1).val();
+var sdate = $(this).children().children().eq(2).val();
+var sresult = $(this).children().children().eq(3).val();
+var tdate = $(this).children().children().eq(4).val();
+var tresult = $(this).children().children().eq(5).val();
+var remark = $(this).children().children().eq(6).val();
+item.attr("SysGuid", sysguid).attr("Remarks", remark).attr("CourseGUID", cguid)
+.attr("FirstDate", fdate).attr("FirstResult", fresult)
+.attr("SecDate", sdate).attr("SecResult", sresult)
+.attr("ThirdDate", tdate).attr("ThirdResult", tresult);
+dataxml.append(item);
+});
+return dataxml[0].outerHTML;
+}
+
+</script>
+</head>
+<body>
+<form id="form1" runat="server">
+<div>
+
+<table id="tb" border="1" style="border-collapse: collapse" width="100%">
+<tbody>
+<tr style="text-align: center">
+<td style="width: 100px">课程名称</td>
+
+<td style="width: 120px">初考时间</td>
+<td style="width: 120px">初考成绩</td>
+<td style="width: 120px">次考时间</td>
+<td style="width: 120px">次考成绩</td>
+<td style="width: 120px">清考时间</td>
+<td style="width: 120px">清考成绩</td>
+<td style="width: 250px">备注</td>
+</tr>
+
+</tbody>
+</table>
+</div>
+<input id="btnsave" type="button" value="保存" />
+<textarea id="ta" cols="100" rows="20" ></textarea>
+
+</form>
+
+</body>
+</html> 

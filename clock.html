@@ -1,0 +1,147 @@
+<!doctype html>	
+<html>
+<head>
+    <style>
+        #clock{
+            display:block;
+            background: green;
+            margin: 0 auto;
+        }
+    </style>
+</head>
+<body>
+<canvas id="clock" width="500" height="500" >
+    您的浏览器不支持canvas标签，无法看到时钟
+</canvas>
+<script>
+    var clock=document.getElementById('clock');
+    var context=clock.getContext('2d');
+    function drawClock() {
+        context.clearRect(0, 0, 500, 500);
+        function tow(n) {
+            return n >= 0 && n < 10 ? '0' + n : '' + n;
+        }
+        var now = new Date();
+        var second = now.getSeconds();
+        var minute = now.getMinutes();
+        var hour = now.getHours();
+        var date = now.getDate();
+        var month = now.getMonth()+1;
+        var year = now.getFullYear();
+        hour = hour + minute / 60;
+        var hour1=hour;
+        hour = hour > 12 ? hour - 12 : hour;
+        context.beginPath();
+        context.lineWidth = 10;
+        context.arc(250, 270, 200, 0, 360, false);
+        context.closePath();
+        context.stroke();
+       //小时刻度制作
+        for (i = 0; i < 12; i++) {
+            context.save();
+            context.lineWidth = 7;
+            context.strokeStyle = "red";
+            context.translate(250, 270);
+            context.rotate(i * 30 * Math.PI / 180);
+            context.beginPath();
+            context.moveTo(0, -170);
+            context.lineTo(0, -190);
+            context.closePath();
+            context.stroke();
+            context.restore();
+        }
+        //分钟刻度制作
+        for ( i = 0; i < 60; i++) {
+            context.save();
+            context.lineWidth = 5;
+            context.strokeStyle = "blue";
+            context.translate(250, 270);
+            context.rotate(i * 6 * Math.PI / 180);
+            context.beginPath();
+            context.moveTo(0, -180);
+            context.lineTo(0, -190);
+            context.closePath();
+            context.stroke();
+            context.restore();
+        }
+        //钟面上表示小时的数字
+        for (var i = 1; i < 13; i++) {
+            context.save();
+            var deg = i * Math.PI / 6;
+            context.translate(250, 270);
+            var x = Math.sin(deg);
+            var y = -Math.cos(deg);
+            context.fillStyle = "block";
+            context.font = "25px 宋体";
+            context.textAlign = "center";
+            context.textBaseline = "middle";
+            context.beginPath();
+            context.fillText(i, x * 155, y * 155);
+            context.closePath();
+            context.restore();
+        }
+        //时针制作
+        context.save();
+        context.lineWidth=7;
+        context.strokeStyle="#000";
+        context.translate(250,270);
+        context.rotate(hour*30*Math.PI/180);
+        context.beginPath();
+        context.moveTo(0,-110);
+        context.lineTo(0,10);
+        context.closePath();
+        context.stroke();
+        context.restore();
+        //分针制作
+        context.save();
+        context.lineWidth=5;
+        context.strokeStyle="#000";
+        context.translate(250,270);
+        context.rotate(minute*6*Math.PI/180);
+        context.beginPath();
+        context.moveTo(0,-135);
+        context.lineTo(0,15);
+        context.closePath();
+        context.stroke();
+        context.restore();
+        //秒针制作
+        context.save();//保存当前环境；
+        //以下是秒针的主体
+        context.strokeStyle="red";
+        context.lineWidth=3;
+        context.translate(250,270);
+        context.rotate(second*6*Math.PI/180);//秒针旋转的速度
+        context.beginPath();
+        context.moveTo(0,-170);
+        context.lineTo(0,20);
+        context.closePath();
+        context.stroke();
+        //以上是秒针的主体，以下是时针、分针、秒针的交叉点
+        context.beginPath();
+        context.arc(0,0,5,0,360,false);
+        context.closePath();
+        context.fillStyle="gray";
+        context.fill();
+        context.stroke();
+        //以上是时针、分针、秒针的交叉点，以下是秒针的顶端装饰。
+        context.beginPath();
+        context.arc(0,-150,5,0,360,false);
+        context.closePath();
+        context.fillStyle="gray";
+        context.fill();
+        context.stroke();
+        context.restore();//返回已保存过的环境。
+        //以下是文字报时；
+        context.save();
+        context.font="23px 楷体";
+        context.lineWidth=1;
+        context.strokeStyle="white";
+        context.strokeText("现在是北京时间:"+tow(year)+"年"+tow(month)+"月"+tow(date)+"日 "
+                +tow(Math.floor(hour1))+"时"+tow(minute)+"分"+tow(second)+"秒",5,30);
+        context.restore();
+    }
+    drawClock();
+    setInterval(drawClock,1000);
+</script>
+</body>
+</html>
